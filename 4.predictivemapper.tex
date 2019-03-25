@@ -1,3 +1,119 @@
 \section{PredMap}
 \subsection{Intro}
-\subsection{Description of the Classes}
+
+\lstinline|predmap| implements a method for building binary classifiers based on the Mapper clustering algorithm, ad described in \cite{palma}.
+
+Given a finite set $X$ and real-valued function $f : X \to \mathbb{R}$, Mapper represents $X$ as a graph whose nodes are subsets of $X$.  Typically, $X$ is viewed as a metric subspace of an ambient metric space $(\mathbb{M}, d)$, and the Mapper nodes are found by means of clustering algorithms exploiting this metric structure.
+
+Assuming ground truth labels to be known for all points in $X$, a simple binary classification model on $\mathbb{M}$ based on Mapper may be defined as follows: first, a Mapper graph is built on $X$ and -- up to ambiguities which may arise when different Mapper nodes intersect -- the model's output on each point in $X$ is declared to be the majority label within the Mapper node containing that point.  Then, given a choice of mapping between $\mathbb{M} \setminus X$ and the set of Mapper nodes, the model's estimate for $x \in \mathbb{M} \setminus X$ is declared to be the majority label within the assigned node. The algorithm is improved upon this approach by a method for refining initial labels in the training phase, effectively decomposing Mapper nodes into regions of high purity. Furthermore, an assignment procedure which is in keeping with the spirit of Mapper is implemented.
+
+\subsection{The algorithm}\label{sec:a first approach}
+
+\subsubsection*{Binary classification with Mapper: a first approach}
+
+Let $\mathcal{D}$ be a training dataset for a binary classification problem, i.e.\ $\mathcal{D}$ comprises a  sequence $X$ of points in, say, a topological space and a corresponding sequence $Y$ of known class labels belonging to $\{0, 1 \}$.  Suppose a clustering method on $X$ is given, producing a collection of subsets $\mathcal C =  \{C_i:\quad C_i\subset X, \quad\bigcup_i C_i=X\}$, together with a rule $\alpha: X \rightarrow \mathcal C$ for assigning new points to the clusters of $X$.  A simple classifier $h: X\rightarrow \{0,1\}$ can then be defined as follows: 
+\begin{enumerate}
+	\item Each cluster is assigned the most common class label among its constituents i.e. if the data points in the cluster $C_0$ are mostly belonging to the class labeled with $1$, then the \textit{majority class} of cluster $C_0$ will be  majority$(C_0)=1$. 
+	\item A new point $x$ is assigned to a cluster $C$ through a well defined mapping $\alpha: \mathbb M \rightarrow \mathcal C$ to a cluster $C=\alpha(x)$. The point $x$ is then classified as follows: $$h(x)=\text{majority}(C)=\text{majority}(\alpha(x))$$ 
+\end{enumerate}
+
+Thus we may construct a first Mapper-based classification algorithm provided we complement Mapper with a suitable such rule $\alpha$. 
+
+Because of the fact that Mapper produces a set of overlapping clusters $\mathcal C=\{C_i\}$, a first phase called \textit{disambiguation} is introduced in the algorithm such that from the initial set of overlapping clusters $\mathcal C$ produces a set of disjoint clusters $\mathcal C'=\{C'_i: C'_i\subset C_i, \quad\bigcup C'_i = X,\quad C'_i\cap C'_j = \delta_{ij}\}$. For simplicity we'll use the notation $\mathcal{C}$ to refer to the \textit{disambiguated } partition $\mathcal{C'}$.
+
+\subsubsection*{Binary classification with Mapper: how to improve}
+
+Assuming that $\mathcal{C}$ partitions $X$, we seek to improve our model by defining some exceptions to rule 2 of section \ref{sec:a first approach}. This means that we look for special, well defined cases where the predicted label of a point $x$ belonging to the test set will be \textit{the opposite} of majority($C=\alpha(x)$). We begin by finding regions that contain a high proportion (over $50\%$) of misclassified points.
+
+For $x \in X$ we let $I_{x, 0} := \{ f(x) \} \subset \mathbb R$ and, for any $k=1, \ldots, |\alpha(x)| - 1$, we denote by $I_{x, k}\subset \mathbb R$ the minimal closed interval containing the $k$ nearest neighbours of $f(x)$ according the Euclidean metric in $\mathbb{R}$ and among the elements of $f(\alpha(x))$. We call the collection of all such intervals as $\mathcal{I}_x := (I_{x, k})_{k=0}^{|\alpha(x)|-1}$.
+
+
+\begin{definition}
+	With $x \in X$ and $1 \leq k \leq |\alpha(x)|-1 $, let 
+	$$ C_{x,k} := f^{-1}(I_{x,k})$$
+	We also let $C_{x,0}:=\{x \}$.
+\end{definition}
+An intermediate measure of misclassification severity will be given by the following function: 
+\begin{definition}
+	With $x \in X$ and $0 \leq k \leq |\alpha(x)|-1 $, we denote by $\phi_x(k)$, resp.\ $\tau_x(k)$, the number of points in $C_{x,k}$ misclassified, resp.\ correctly classified, by $\mathrm{majority}(\alpha(x))$.  Finally, we define $g_x(k):=\phi_x(k) - \tau_x(k)$.
+\end{definition} 
+
+The $k$'s for which we have positive values of $g_x$ indicate that there is a majority of misclassified points in $C_{x,k}$.  This suggests that switching estimated labels on some of the $C_{x,k}$ may be statistically sound. We now introduce a function on $X$ which we call the \emph{density detector}. It will provide us with a way of ranking points in $X$ which will be later used to construct refinements of the original Mapper nodes and perform such switchings.
+
+\begin{definition}\label{def: delta}
+	For any $\Gamma \in \mathbb{N}_0$, the density detector $\Delta_\Gamma : X \rightarrow \mathbb R_{\geq 0}$ with weight $\beta \in \mathbb R^+$ is defined as follows.  Let $x \in X$ and $\Gamma' := \min\{ \Gamma, |\pi(x)| - 1\}$, then
+	\begin{equation*}
+	\Delta_\Gamma (x)= \max\limits_{0 \leq k \leq \Gamma'} \delta_k(x), \quad \text{where} \quad \delta_k(x) := g_x^+(k)^{\beta} \frac{\phi_x(k)}{|C_{x,k}|}
+	\end{equation*}
+	and $g_x^+$ is the positive part of $g_x$.  We also let $\kappa_\Gamma(x) = \arg \max_{0 \leq k \leq \Gamma'}\delta_k(x)$ and $I_\Gamma(x) := I_{x, \kappa_\Gamma(x)}$.
+\end{definition}
+
+\begin{definition}\label{def:}
+	For any $\Gamma \in \mathbb{N}_0$, the density detector $\Delta_\Gamma : X \rightarrow \mathbb R_{\geq 0}$ with weight $\beta \in \mathbb R^+$ is defined as follows.  Let $x \in X$ and $\Gamma' := \min\{ \Gamma, |\pi(x)| - 1\}$, then
+	\begin{equation*}
+	\Delta_\Gamma (x)= \max\limits_{0 \leq k \leq \Gamma'} \delta_k(x), \quad \text{where} \quad \delta_k(x) := g_x^+(k)^{\beta} \frac{\phi_x(k)}{|C_{x,k}|}
+	\end{equation*}
+	and $g_x^+$ is the positive part of $g_x$.  We also define $\kappa_\Gamma(x) := \arg \max_{0 \leq k \leq \Gamma'}\delta_k(x)$ and $I_\Gamma(x) := I_{x, \kappa_\Gamma(x)}$.
+\end{definition}
+
+We now give a prescription, depending on a parameter $0 \leq \lambda$, for identifying subsets of each Mapper node in which estimated labels are to be changed. 
+
+\begin{definition}{\textit{PredMap classifier $h(x)$}}\\
+$$h(x) = \begin{cases}
+\text{majority}(\alpha(x))& \text{if } f(x)\notin F_{\alpha(x)}\\
+\lnot\text{majority}(\alpha(x))& \text{if } f(x)\in F_{\alpha(x)}
+\end{cases}$$. For each cluster $C$ the corresponding set $F_C$ is built as a union of some intervals $I_\Gamma(x)$ defined before: $$F_C=\bigcup_{x\in L_C} I_\Gamma(x)$$ where $L_C = \{x\in C: \triangle_\Gamma(x)>\lambda\cdot \text{Score}(C;a)\}$ where Score$(C): \mathcal C\rightarrow \mathbb R^+$ is a \textit{score function} (maybe depending on some parameters)  that has to be designed such that a cluster $C$ with high score value will correspond to a bigger set $L_C$, resulting in a higher probability for a point $x: \alpha(x)=C$ to be such that $h(x)=\lnot \text{majority}(C)$
+\end{definition}
+
+\subsection{Description of the Classes}\label{sec:predmap description of the classes}
+
+\subsubsection{\_predmap.py}
+\paragraph{\textit{class \_predmap.BinaryClassifier}}
+Class responsible for the implementation on top of a mapper graph of the binary
+classification task as designed by Francesco Palma and Thomas Boys
+
+Example of use:
+\begin{lstlisting}[style=mystyle, deletekeywords={filter}]
+from numpy import genfromtxt
+import lmapper as lm
+from lmapper.filter import Projection
+from lmapper.cover import BalancedCover
+from lmapper.cluster import Linkage
+import predmap as mapp
+from predmap.datasets import synthetic_data
+
+filter = Projection(ax=2)
+cover = BalancedCover(
+									nintervals=20,
+									overlap=0.4)
+cluster = Linkage(method='single')
+mapper = lm.Mapper(
+								data=synthetic_data.x,
+								filter=filter,
+								cover=cover,
+								cluster=cluster)
+mapper.fit()
+
+predictor = mapp.BinaryClassifier(
+													mapper=mapper,
+													response_values=synthetic_data.y,
+													_lambda=0.4)
+predictor.fit()
+
+x0 = [0.3, 0.4, 0.7]
+
+predictor.predict(x0)
+\end{lstlisting}
+As it can be seen in the example this class provides to the user two methods: \lstinline|_predmap.BinaryClassifier.fit()| and \lstinline|_predmap.BinaryClassifier.predict()|. 
+
+The first method performs all the calculations described in section \ref{sec:a first approach}. Namely, it performs the \textit{disambiguation} step, builds all the values $\triangle_\Gamma(x), \kappa_\Gamma(x)$ and $I_\Gamma(x)$ for each point $x$ in the training set, and builds for each cluster $C$ the set $F_C=\bigcup_{x\in L_C} I_\Gamma(x)$. 
+
+The method \lstinline|_predmap.BinaryClassifier.predict()| takes as an input the test set $\mathcal D_{test}$, and for each point $x\in \mathcal D_{test}$ resolves the assignment $\alpha(x)$ and returns the value $h(x)$:
+
+$$h(x) = \begin{cases}
+\text{majority}(\alpha(x))& \text{if } f(x)\notin F_{\alpha(x)}\\
+\lnot\text{majority}(\alpha(x))& \text{if } f(x)\in F_{\alpha(x)}
+\end{cases}$$
+
+\subsubsection{disambiguated\_node.py}
+\paragraph{\textit{class disambiguated\_node.DisambiguatedNode}}dbfdffv
