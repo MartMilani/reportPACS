@@ -116,4 +116,15 @@ $$h(x) = \begin{cases}
 \end{cases}$$
 
 \subsubsection{disambiguated\_node.py}
-\paragraph{\textit{class disambiguated\_node.DisambiguatedNode}}dbfdffv
+\paragraph{\textit{class disambiguated\_node.DisambiguatedNode}}
+
+The aim of this class is to extend the class \lstinline|lmapper.complex.Node| with attributes and methods necessary to implement the predictive Mapper algorithm. Each object of class \lstinline|predmap.disambiguated\_node.DisambiguatedNode| represents one of the clusters $C$ of the \textit{disambiguated} partition $\mathcal C$. In particular, it has to construct and store the set $F_C$ through the procedure described in the section above. To summarize the responsibilities of this class:
+\begin{enumerate}
+	\item each object stores a reference to the corresponding \lstinline|lmapper.complex.Node| object that it extends.
+	\item the method \lstinline|predmap.disambiguated\_node.DisambiguatedNode._finduniquelabels| performs the disambiguation step.
+	\item the method \lstinline|predmap.disambiguated\_node.DisambiguatedNode._setmajorityvote| finds majority$(C)$ and stores some information
+	necessary to compute the score function value for the corresponding node.
+	\item the method \lstinline|predmap.disambiguated\_node.DisambiguatedNode._applyscorefunction| calculates $S(C; a)$ where the parameter $a\in[0,1]$.
+	\item the method \lstinline|predmap.disambiguated\_node.DisambiguatedNode._computeintervals| calculates the density detector $\Delta_\Gamma$ and $\kappa_\Gamma(x)$.
+	the method \lstinline|predmap.disambiguated\_node.DisambiguatedNode._intervalstoflip| finds and stores the set $F_C=\bigcup_{x\in L_C} I_\Gamma(x)$ where $L_C = \{x\in C: \triangle_\Gamma(x)>\lambda\cdot \text{Score}(C;a)\}$
+\end{enumerate}
