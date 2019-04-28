@@ -7,20 +7,24 @@ We benchmarked lmapper against Kepler Mapper. To benchmark it a specific cover w
 Mac Book Pro late 2011 13", with a 32 nm "Sandy Bridge" 2.4 GHz Intel "Core i5" processor (2435M), 8 GB of 1333 MHz DDR3 SDRAM in two modules of 4GB each.
 
 \begin{figure}[h]
-	\caption{Performance comparison}
+	\caption{Synthetic dataset: performance comparison}
 	\centering
 	\includegraphics[width=0.9\textwidth]{images/benchmark/synthetic/benchmark}
 \end{figure}
 \begin{figure}[h]
-	\caption{Graph obtained with Kepler Mapper}
+	\caption{Synthetic dataset: graph obtained with Kepler Mapper}
 	\centering
 	\includegraphics[width=0.5\textwidth]{images/benchmark/synthetic/benchmark_kmapper}
 \end{figure}
 \begin{figure}[h]
-	\caption{Result obtained with lmapper}
+	\caption{Synthetic dataset: graph obtained with lmapper}
 	\centering
 	\includegraphics[width=0.5\textwidth]{images/benchmark/synthetic/benchmark_lmapper}
 \end{figure}
+
+On the synthetic dataset lmapper managed to get approximately a 10\% speedup compared to kmapper. The main topological features (the four branches and the ring at the center of the data point cloud) are correctly identified by both packages; furthermore we can see how the graph output of lmapper has much less noise than the graph obtained by kmapper. In the graph output of kmapper there are two small extra connected components, plus there are many little nodes connected to the biggest connected component. This was possible thanks to the class lmapper.cutoff.FirstGap that for each set of the cover calculates the number of clusters (nodes) to create from the dendrogram; in kmapper the number of clusters has to be fixed; in this case it was set to 2. This is what causes the creation of many little nodes (noise) in the kmapper output.
+
+In conclusion, lmapper is faster and more robust to noise.
 
 \begin{figure}[h]
 	\caption{Performance comparison}
@@ -37,16 +41,10 @@ Mac Book Pro late 2011 13", with a 32 nm "Sandy Bridge" 2.4 GHz Intel "Core i5" 
 	\centering
 	\includegraphics[width=0.5\textwidth]{images/benchmark/cat/benchmark_lmapper}
 \end{figure}
-
+On this second dataset lmapper is approximately 20\% faster than kmapper; again we see that lmapper's graph is again more robust to noise. There's only one connected component, and the main topological feature (the ring) is still captured.
 \paragraph{Conclusions}
-The pure Python implementation obtained a speedup of 10\% and 20\% compared to Kepler Mapper on the synthetic dataset of Palma and the Cat dataset of \cite{pythonmapper}.
-
-
-\subsection{filterutils}
-\paragraph{Conclusions}
-We see that the package filterutils.cpp managed to get an almost perfect speedup, almost linear with the number of threads launched.
+The pure Python implementation obtained a speedup of 10\% and 20\% compared to Kepler Mapper on the synthetic dataset of Palma and the Cat dataset of \cite{pythonmapper}. Thanks to the implementation of the cutoff in the cutoff.py module the output is more robust to noise.
 
 \subsection{predmap}
+With predmap we managed to obtain the same results of Francesco Palma's master thesis.
 
-\paragraph{Conclusions}
-We managed to obtain the same results of Francesco Palma's masther thesis

@@ -62,7 +62,7 @@ We now give a prescription, depending on a parameter $0 \leq \lambda$, for ident
 $$h(x) = \begin{cases}
 \text{majority}(\alpha(x))& \text{if } f(x)\notin F_{\alpha(x)}\\
 \lnot\text{majority}(\alpha(x))& \text{if } f(x)\in F_{\alpha(x)}
-\end{cases}$$. For each cluster $C$ the corresponding set $F_C$ is built as a union of some intervals $I_\Gamma(x)$ defined before: $$F_C=\bigcup_{x\in L_C} I_\Gamma(x)$$ where $L_C = \{x\in C: \triangle_\Gamma(x)>\lambda\cdot \text{Score}(C;a)\}$ where Score$(C): \mathcal C\rightarrow \mathbb R^+$ is a \textit{score function} (maybe depending on some parameters)  that has to be designed such that a cluster $C$ with high score value will correspond to a bigger set $L_C$, resulting in a higher probability for a point $x: \alpha(x)=C$ to be such that $h(x)=\lnot \text{majority}(C)$
+\end{cases}$$ For each cluster $C$ the corresponding set $F_C$ is built as a union of some intervals $I_\Gamma(x)$ defined before: $$F_C=\bigcup_{x\in L_C} I_\Gamma(x)$$ where $L_C = \{x\in C: \triangle_\Gamma(x)>\lambda\cdot \text{Score}(C;a)\}$ where Score$(C): \mathcal C\rightarrow \mathbb R^+$ is a \textit{score function} (maybe depending on some parameters)  that has to be designed such that a cluster $C$ with high score value will correspond to a bigger set $L_C$, resulting in a higher probability for a point $x: \alpha(x)=C$ to be such that $h(x)=\lnot \text{majority}(C)$
 \end{definition}
 
 \subsection{Description of the Classes}\label{sec:predmap description of the classes}
