@@ -11,9 +11,10 @@ from lmapper.filter import Projection
 from lmapper.cover import UniformCover
 from lmapper.cluster import Linkage
 from lmapper.cutoff import FirstGap
-from lmapper.datasets import circles
+from lmapper.datasets import cat
 
 def main():
+    data = cat()
 	filter = Projection(ax=0)
 	cover = UniformCover(nintervals=15,
 										     overlap=0.4)
@@ -21,7 +22,7 @@ def main():
 	cluster = Linkage(method='single',
 									 metric="euclidean",
 									 cutoff=cutoff)
-	mapper = lm.Mapper(data=circles,
+	mapper = lm.Mapper(data=data,
 											filter=filter,
 	 										cover=cover,
 											cluster=cluster)
@@ -30,7 +31,7 @@ def main():
 
 
 if __name__ == "__main__":
-main()
+	main()
 
 \end{lstlisting}
 This test shows the main components and design choices of the package. 
@@ -48,7 +49,7 @@ from lmapper.filter import Projection
 from lmapper.cover import UniformCover
 from lmapper.cluster import Linkage
 from lmapper.cutoff import FirstGap
-from lmapper.datasets import circles
+from lmapper.datasets import cat
 
 def main():
 	filter = Projection(ax=0)
@@ -58,7 +59,8 @@ def main():
  	cluster = Linkage(method='single',
 									 metric="euclidean",
 									 cutoff=cutoff)
-	mapper = mp.Mapper(data=circles,
+	data = cat()
+	mapper = lm.Mapper(data=data,
 											 filter=filter,
 											 cover=cover,
 											 cluster=cluster)
@@ -70,11 +72,11 @@ def main():
 									 cutoff=cutoff)
 	mapper.set_params(cluster=cluster)
 	mapper.fit()
-	mapper.plot
+	mapper.plot()
 
 
 if __name__ == "__main__":
-main()
+	main()
 
 \end{lstlisting}
 This test was designed to solve the following issue: Mapper has a lot of parameters, and to set them correctly a lot of trial-and-error has to be done by the user to find a good choice of parameters. All the previous implementations up to our knowledge, when a parameter is changed, need to recalculate everything from scratch, making the trial-and-error procedure really slow. However, Mapper is an algorithm that has the following clear pipeline:
@@ -114,14 +116,15 @@ from lmapper.filter import Projection
 from lmapper.cover import UniformCover
 from lmapper.cluster import Linkage
 from lmapper.cutoff import FirstGap
-from lmapper.datasets import circles
+from lmapper.datasets import cat
 
+data = cat()
 filter = Projection(ax=0)
 cover = UniformCover(nintervals=15,
                    overlap=0.4)
 cluster = Linkage(method='single',
                  cutoff=FirstGap(0.05)
-mapper = lm.Mapper(data=circles,
+mapper = lm.Mapper(data=data,
                    filter=filter,
                    cover=cover,
                    cluster=cluster)
@@ -131,8 +134,9 @@ mapper.plot()
 
 \begin{lstlisting}[language=Python, caption=Example 2 for the Mapper class. The Mapper object can be initialized just with the data matrix.]
 import lmapper as lm
-from lm.datasets import circles
+from lm.datasets import cat
 
+data = cat()
 mapper = lm.Mapper(data=circles)
 mapper.fit()
 mapper.plot()
@@ -140,9 +144,10 @@ mapper.plot()
 
 \begin{lstlisting}[language=Python, caption=Example 3 for the Mapper class. The arguments of the init function can be strings.]
 import lmapper as lm
-from lm.datasets import circles
+from lm.datasets import cat
 
-mapper = lm.Mapper(data=circles,
+data = cat()
+mapper = lm.Mapper(data=data,
 										filter='Projection',
 										cover='UniformCover',
 										cluster='Linkage')
@@ -155,7 +160,7 @@ import lmapper as lm
 from lmapper.cover import UniformCover
 from lmapper.cluster import Linkage
 from lmapper.cutoff import FirstGap
-from lmapper.datasets import circles
+from lmapper.datasets import cat
 
 def ProjectionOnFirstCoordinate(x):
 	return x[:, 0]
@@ -164,8 +169,8 @@ cover = UniformCover(nintervals=15,
 										 overlap=0.4)
 cluster = Linkage(method='single',
 								 cutoff=FirstGap(0.05)
-
-mapper = lm.Mapper(data=circles,
+data = cat()
+mapper = lm.Mapper(data=data,
 										filter=ProjectionOnFirstCoordinate)
 mapper.fit()
 mapper.plot()
@@ -184,15 +189,15 @@ from lmapper.filter import Projection
 from lmapper.cover import UniformCover
 from lmapper.cluster import Linkage
 from lmapper.cutoff import FirstGap
-from lmapper.datasets import circles
+from lmapper.datasets import cat
 
 filter = Projection(ax=0)
 cover = UniformCover(nintervals=15,
 								   overlap=0.4)
 cluster = Linkage(method='single',
 						   cutoff=FirstGap(0.05)
-
-mapper = lm.Mapper(data=circles,
+data = cat()
+mapper = lm.Mapper(data=data,
 								 filter=filter,
 								 cover=cover,
 								 custer=cluster)

@@ -1,3 +1,4 @@
+%!TEX root = 0.main.tex
 \section{Benchmark}
 
 \subsection{lmapper VS kmapper}
@@ -37,7 +38,7 @@ In conclusion, lmapper is faster and more robust to noise.
 On this second dataset lmapper is approximately 20\% faster than kmapper; again we see that lmapper's graph is again more robust to noise. There's only one connected component, and the main topological feature (the ring) is still captured.
 
 \subsection{filterutils}
-The filterutils package manage to get the following speedup:
+For an Eccentricity filter calculated with exponent set to $10$ and whith an euclidean distance, the filterutils package manage to get the following speedup (for reproducibility, run the file lmapper/test/test\_filterutils.py)
 
 \begin{center}
 	
@@ -46,13 +47,13 @@ The filterutils package manage to get the following speedup:
 		Threads & Speedup \\ 
 		\hline
 		1& 1\\ 
-		2 & 1.6 \\ 
+		2 & 1.83 \\ 
 	\end{tabular}\\
 	\bigskip
 	Accuracy
 \end{center}
 
-To see the results, execute the test\_filterutils.py file in the lmapper test folder. On our machine we were limited to only 1 and 2 threads, but it would be interesting to test the scalability of the package on machine with many cores.
+To see the results, execute the test\_filterutils.py file in the lmapper test folder. On our machine we were limited to only 1 and 2 threads, but it would be interesting to test the scalability of the package on a machine capable of running more threads in parallel.
 \subsection{predmap}
 With predmap we managed to obtain the same results of Francesco Palma's master thesis (see the test folder of the package)
 Here a table confronting the results. The small differences in the synthetic datasets are due to the fact that the dataset is not exactly the same used in Palma's work, since it has been regenerated through a random process and thus it is slightly different. The difference in the Wisconsin dataset however means that there's some slight difference in the algorithms. 
@@ -61,9 +62,9 @@ Here a table confronting the results. The small differences in the synthetic dat
 	
 	\begin{tabular}{ ccc } 
 	
-		&Palma's results & predmap \\ 
+		&Palma's results & predmap (majority vote) \\ 
 		\hline
-		Synthetic dataset & 71.01\% & 70.80\% \\ 
+		Synthetic dataset & 71.01\% & 70.85\% \\ 
 		Wisconsin breast cancer dataset & 79.10\% & 79.78\% \\ 
 	\end{tabular}\\
 \bigskip

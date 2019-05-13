@@ -1,3 +1,4 @@
+%!TEX root = 0.main.tex
 \section{PredMap}
 \subsection{Intro}
 
@@ -41,20 +42,13 @@ An intermediate measure of misclassification severity will be given by the follo
 The $k$'s for which we have positive values of $g_x$ indicate that there is a majority of misclassified points in $C_{x,k}$.  This suggests that switching estimated labels on some of the $C_{x,k}$ may be statistically sound. We now introduce a function on $X$ which we call the \emph{density detector}. It will provide us with a way of ranking points in $X$ which will be later used to construct refinements of the original Mapper nodes and perform such switchings.
 
 \begin{definition}\label{def: delta}
-	For any $\Gamma \in \mathbb{N}_0$, the density detector $\Delta_\Gamma : X \rightarrow \mathbb R_{\geq 0}$ with weight $\beta \in \mathbb R^+$ is defined as follows.  Let $x \in X$ and $\Gamma' := \min\{ \Gamma, |\pi(x)| - 1\}$, then
+	For any $\Gamma \in \mathbb{N}_0$, the density detector $\Delta_\Gamma : X \rightarrow \mathbb R_{\geq 0}$ with weight $\beta \in \mathbb R^+$ is defined as follows.  Let $x \in X$, then
 	\begin{equation*}
-	\Delta_\Gamma (x)= \max\limits_{0 \leq k \leq \Gamma'} \delta_k(x), \quad \text{where} \quad \delta_k(x) := g_x^+(k)^{\beta} \frac{\phi_x(k)}{|C_{x,k}|}
+	\Delta (x)= \max\limits_{0 \leq k \leq |\pi(x)| - 1} \delta_x(k), \quad \text{where} \quad \delta_x(k) := g_x^+(k)^{\beta} \frac{\phi_x(k)}{|C_{x,k}|}
 	\end{equation*}
-	and $g_x^+$ is the positive part of $g_x$.  We also let $\kappa_\Gamma(x) = \arg \max_{0 \leq k \leq \Gamma'}\delta_k(x)$ and $I_\Gamma(x) := I_{x, \kappa_\Gamma(x)}$.
+	and $g_x^+$ is the positive part of $g_x$.  We also let $\hat k(x) = \arg \max_{0 \leq k \leq |\pi(x)| - 1}\delta_x(k)$ and $\hat I(x) := I_{x, \hat k(x)}$.
 \end{definition}
 
-\begin{definition}\label{def:}
-	For any $\Gamma \in \mathbb{N}_0$, the density detector $\Delta_\Gamma : X \rightarrow \mathbb R_{\geq 0}$ with weight $\beta \in \mathbb R^+$ is defined as follows.  Let $x \in X$ and $\Gamma' := \min\{ \Gamma, |\pi(x)| - 1\}$, then
-	\begin{equation*}
-	\Delta_\Gamma (x)= \max\limits_{0 \leq k \leq \Gamma'} \delta_k(x), \quad \text{where} \quad \delta_k(x) := g_x^+(k)^{\beta} \frac{\phi_x(k)}{|C_{x,k}|}
-	\end{equation*}
-	and $g_x^+$ is the positive part of $g_x$.  We also define $\kappa_\Gamma(x) := \arg \max_{0 \leq k \leq \Gamma'}\delta_k(x)$ and $I_\Gamma(x) := I_{x, \kappa_\Gamma(x)}$.
-\end{definition}
 
 We now give a prescription, depending on a parameter $0 \leq \lambda$, for identifying subsets of each Mapper node in which estimated labels are to be changed. 
 
@@ -62,7 +56,11 @@ We now give a prescription, depending on a parameter $0 \leq \lambda$, for ident
 $$h(x) = \begin{cases}
 \text{majority}(\alpha(x))& \text{if } f(x)\notin F_{\alpha(x)}\\
 \lnot\text{majority}(\alpha(x))& \text{if } f(x)\in F_{\alpha(x)}
-\end{cases}$$ For each cluster $C$ the corresponding set $F_C$ is built as a union of some intervals $I_\Gamma(x)$ defined before: $$F_C=\bigcup_{x\in L_C} I_\Gamma(x)$$ where $L_C = \{x\in C: \triangle_\Gamma(x)>\lambda\cdot \text{Score}(C;a)\}$ where Score$(C): \mathcal C\rightarrow \mathbb R^+$ is a \textit{score function} (maybe depending on some parameters)  that has to be designed such that a cluster $C$ with high score value will correspond to a bigger set $L_C$, resulting in a higher probability for a point $x: \alpha(x)=C$ to be such that $h(x)=\lnot \text{majority}(C)$
+\end{cases}$$ where for each cluster $C$ the corresponding set $F_C$ is built as a union of some intervals $\hat I(x)$ defined before: 
+
+$$F_C=\bigcup_{x\in L_C} \hat I(x)$$
+
+where $L_C = \{x\in C: \triangle(x)>\lambda\cdot \text{Score}(C;a)\}$ where Score$(C): \mathcal C\rightarrow \mathbb R^+$ is a \textit{score function} (maybe depending on some parameters)  that has to be designed such that a cluster $C$ with high score value will correspond to a bigger set $L_C$, resulting in a higher probability for a point $x: \alpha(x)=C$ to be such that $h(x)=\lnot \text{majority}(C)$
 \end{definition}
 
 \subsection{Description of the Classes}\label{sec:predmap description of the classes}
@@ -74,21 +72,22 @@ classification task as designed by Francesco Palma and Thomas Boys
 
 Example of use:
 \begin{lstlisting}[style=mystyle, deletekeywords={filter}]
-from numpy import genfromtxt
 import lmapper as lm
 from lmapper.filter import Projection
 from lmapper.cover import BalancedCover
 from lmapper.cluster import Linkage
+from lmapper.datasets import synthetic_dataset
 import predmap as mapp
-from predmap.datasets import synthetic_data
+
 
 filter = Projection(ax=2)
 cover = BalancedCover(
 									nintervals=20,
 									overlap=0.4)
 cluster = Linkage(method='single')
+data, response = synthetic_dataset()
 mapper = lm.Mapper(
-								data=synthetic_data.x,
+								data=data,
 								filter=filter,
 								cover=cover,
 								cluster=cluster)
@@ -96,7 +95,7 @@ mapper.fit()
 
 predictor = mapp.BinaryClassifier(
 													mapper=mapper,
-													response_values=synthetic_data.y,
+													response_values=response,
 													_lambda=0.4)
 predictor.fit()
 
@@ -121,10 +120,10 @@ $$h(x) = \begin{cases}
 The aim of this class is to extend the class \lstinline|lmapper.complex.Node| with attributes and methods necessary to implement the predictive Mapper algorithm. Each object of class \lstinline|predmap.disambiguated\_node.DisambiguatedNode| represents one of the clusters $C$ of the \textit{disambiguated} partition $\mathcal C$. In particular, it has to construct and store the set $F_C$ through the procedure described in the section above. To summarize the responsibilities of this class:
 \begin{enumerate}
 	\item each object stores a reference to the corresponding \lstinline|lmapper.complex.Node| object that it extends.
-	\item the method \lstinline|predmap.disambiguated\_node.DisambiguatedNode._finduniquelabels| performs the disambiguation step.
-	\item the method \lstinline|predmap.disambiguated\_node.DisambiguatedNode._setmajorityvote| finds majority$(C)$ and stores some information
+	\item the method \lstinline|predmap.disambiguated_node.DisambiguatedNode._finduniquelabels| performs the disambiguation step.
+	\item the method \lstinline|predmap.disambiguated_node.DisambiguatedNode._setmajorityvote| finds majority$(C)$ and stores some information
 	necessary to compute the score function value for the corresponding node.
-	\item the method \lstinline|predmap.disambiguated\_node.DisambiguatedNode._applyscorefunction| calculates $S(C; a)$ where the parameter $a\in[0,1]$.
-	\item the method \lstinline|predmap.disambiguated\_node.DisambiguatedNode._computeintervals| calculates the density detector $\Delta_\Gamma$ and $\kappa_\Gamma(x)$.
-	the method \lstinline|predmap.disambiguated\_node.DisambiguatedNode._intervalstoflip| finds and stores the set $F_C=\bigcup_{x\in L_C} I_\Gamma(x)$ where $L_C = \{x\in C: \triangle_\Gamma(x)>\lambda\cdot \text{Score}(C;a)\}$
+	\item the method \lstinline|predmap.disambiguated_node.DisambiguatedNode._applyscorefunction| calculates $S(C; a)$ where the parameter $a\in[0,1]$.
+	\item the method \lstinline|predmap.disambiguated_node.DisambiguatedNode._computeintervals| calculates the density detector $\Delta_\Gamma$ and $\kappa_\Gamma(x)$.
+	the method \lstinline|predmap.disambiguated_node.DisambiguatedNode._intervalstoflip| finds and stores the set $F_C=\bigcup_{x\in L_C} I_\Gamma(x)$ where $L_C = \{x\in C: \triangle_\Gamma(x)>\lambda\cdot \text{Score}(C;a)\}$
 \end{enumerate}

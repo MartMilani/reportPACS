@@ -1,10 +1,11 @@
 \section{Previous Implementations}
 In this section we briefly describe the most used libraries at the moment that implement the Mapper algorithm. In particular, we focus on discussing their architecture and design choices, highlighting the corresponding pros and cons.
 
+
 \subsection{Kepler Mapper}
 \paragraph{Kepler Mapper}
 Kepler Mapper is a pure Python implementation of the Mapper algorithm. It relies on clustering and filter functions implemented in the popular package Scikit-learn. However, compared to other implementations described further on, it is limited. It implements only one type of cover, and furthermore it does not compute the nerve of such cover, but only its one-dimensional skeleton. In other words, it completely ignores simplices with dimension $d, d>=1$. Such a one-dimensional skeleton is nothing else than a simple undirected graph.\\
-As a filter function, the user can provide a Scikit-learn API compatible object (an object with a $fit\_transform()$ method) or a user-made numpy.ndarray containing the filter values of the data points. As a clustering algorithm, Kepler Mapper uses Scikit-learn API compatible clustering algorithms, that means a class with the following methods: get\_params(), fit(), and the following attribute: \_labels.
+As a filter function, the user can provide a Scikit-learn API compatible object (an object with a \lstinline|fit_transform()| method) or a user-made numpy.ndarray containing the filter values of the data points. As a clustering algorithm, Kepler Mapper uses Scikit-learn API compatible clustering algorithms, that means a class with the following methods: get\_params(), fit(), and the following attribute: \_labels.
 
 At the present Kepler Mapper is under constant development ( as at the 10th of March 2019 the GitHub repo has 482 commits, 8 branches, 6 releases, last published commit the 6th of March 2019).
 
