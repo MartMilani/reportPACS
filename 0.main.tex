@@ -141,8 +141,8 @@ Martino \textsc{Milani}\\
 
 \begin{abstract}
 
-A fundamental problem in data analysis is the visualization of high dimensional datasets. \\G. Carlsson et al. in \cite{topologyanddata} propose an algorithm called Mapper that visualizes the dataset through a simplicial complex that aims at approximating the topology of the dataset. Few implementations of this algorithm already exist \cite{KMapper, pythonmapper}; in this work we propose lmapper, a Python package that provides an alternative, efficient and easily extensible implementation of Mapper. We benchmarked lmapper against \cite{KMapper} on two different datasets and verified that in both cases lmapper is faster and more robust to noise.\\ 
- Palma et al. in \cite{Palma} proposed a binary classification algorithm based on Mapper; in this work we developed on top of lmapper a third package, predmap, implementing such algorithm. With predmap we were able in a simple case (majority vote) to retrieve the same results presented in \cite{Palma}.
+A fundamental problem in data analysis is the visualization of high dimensional datasets. \\G. Carlsson et al. in \cite{topologyanddata} propose an algorithm called Mapper that visualizes the dataset through a simplicial complex that aims at approximating the topology of the dataset. Few implementations of this algorithm already exist \cite{KMapper, pythonmapper}; in this work we propose lmapper, a Python package that provides an alternative, efficient and easily extensible implementation of Mapper. We benchmarked lmapper against \cite{KMapper} on two different datasets and verified that in both cases lmapper is faster and more robust to noise. We then present a companion Python package, filterutils, written in C++ with the use of OpenMP for higher performances.\\
+Palma et al. in \cite{Palma} proposed a binary classification algorithm based on Mapper; in this work we developed on top of lmapper a third package, predmap, implementing such algorithm. With predmap we were able in a simple case (majority vote) to retrieve the same results presented in \cite{Palma}.
 
 \end{abstract}
 \pagebreak
